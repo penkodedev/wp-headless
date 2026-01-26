@@ -1,0 +1,4 @@
+echo "wp-config.php" > .gitignore
+echo "logs/" >> .gitignore
+echo "sql/local.sql" >> .gitignore
+echo ".env" >> .gitignore

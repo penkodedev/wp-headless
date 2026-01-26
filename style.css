@@ -1,0 +1,264 @@
+﻿/*
+Theme Name: Penkode Headless
+Theme URI: http://www.penkode.com/
+Description: A powerful headless WordPress theme built to serve content via the REST API. It's optimized for use with modern frontend frameworks like Next.js and includes custom endpoints, along with support for Custom Post Types and Custom Fields, providing a flexible backend for your decoupled project.
+Author: Paulo Ramalho (wwww.penkode.com)
+Author web: www.penkode.com
+Author URI: www.penkode.com
+Version: 1.0
+.
+For exclusive use of ...
+*/
+
+/*
+------------------------------------------------------
+        @GENERAL DASHBOARD STYLES  
+------------------------------------------------------
+*/
+
+
+.wp-admin .row-actions {
+    .view {
+        display: none;
+    }
+
+    .duplicate a,
+    .frontend_preview a {
+        background-color: #f4ffa2;
+        margin-right: 3px;
+    }
+}
+
+.options-general-php h1 {
+    font-size: 2em;
+    font-weight: 700;
+    background: rgb(207, 207, 207);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+/* Horizontal gap px, vertical gap px (adjust the second value for more/less space between rows) */
+table.form-table {
+    border-collapse: separate;
+    border-spacing: 15px 15px;
+    /* <-- horizontal, vertical */
+    background: transparent;
+    /* important: allows the gap between cells to be visible */
+}
+
+table.form-table td,
+table.form-table th {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 18px;
+}
+
+
+table.form-table th {
+    font-size: 1.13em;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+
+
+
+
+/*
+------------------------------------------------------
+                    @LOGIN PAGE  
+------------------------------------------------------
+*/
+
+#header,
+#headerimg,
+#headerimg h1,
+hr {
+    display: none !important;
+}
+
+
+body.page-template-login {
+    background-color: #E2E2DA;
+}
+
+.page-template-login #grid-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-template-login #logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 70px auto 0 auto;
+}
+
+
+.page-template-login #logo-container img {
+    max-width: 160px;
+}
+
+.page-template-login input {
+    width: -webkit-fill-available !important;
+}
+
+form#loginform {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px auto;
+    max-width: 600px;
+}
+
+form#loginform .alert-warning {
+    font-size: 1em;
+    display: flex;
+    color: red;
+    background: #ffe69c;
+    margin-bottom: 12px;
+    padding: 18px;
+    width: 100%;
+}
+
+
+.login-options-container {
+    display: flex;
+}
+
+.show-pass,
+.remind-pass,
+.login-options-container p {
+    margin: 0 0 0 12px;
+    font-size: 0.9em;
+}
+
+span.opt-sep {
+    margin-left: 10px;
+}
+
+#loginform #error-message {
+    display: flex;
+    padding: 20px;
+    margin-bottom: 22px;
+    background: rgb(255, 233, 136);
+    justify-content: center;
+}
+
+p.submit {
+    display: flex;
+    justify-content: center;
+}
+
+.page-template-login header,
+.page-template-login footer {
+    display: none;
+}
+
+.login-remember,
+.login-submit,
+.page-template-login #MainContainer,
+.page-template-login article {
+    display: flex;
+    justify-content: center;
+}
+
+p.login-remember {
+    line-height: normal;
+    margin: 0;
+}
+
+.login-username>label,
+.login-password>label {
+    display: block;
+}
+
+.logged-in main p a {
+    margin: 20px auto;
+    width: 250px;
+}
+
+.login-text {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    margin-top: 46px;
+}
+
+.login-text a:hover {
+    color: #536cf0;
+}
+
+
+
+/*
+----------------------------
+    @BUTTONS AND INPUTS
+----------------------------
+*/
+:root {
+    --primary: #313131;
+    /* Indigo 600 */
+    --primary-hover: #535353;
+    --gray-light: #f3f4f6;
+    --gray: #d1d5db;
+    --gray-dark: #6b7280;
+    --radius: 8px;
+}
+
+/* Inputs y textarea */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    color: #111827;
+    /*background-color: var(--gray-light);*/
+    border: 1px solid var(--gray);
+    border-radius: var(--radius);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+    background-color: white;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--gray-dark);
+}
+
+/* Botones */
+button,
+input[type="submit"] {
+    display: inline-block;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    background-color: var(--primary);
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: var(--primary-hover);
+}
+
+button:active,
+input[type="submit"]:active {
+    transform: scale(0.98);
+}
