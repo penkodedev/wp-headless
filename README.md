@@ -1,1 +1,23 @@
-# Penkode Headless`n`nFramework WordPress headless para proyectos con frontend en React.`n`n## Descripción`n`nEste proyecto es un framework basado en WordPress que permite crear aplicaciones headless, donde WordPress actúa como backend CMS y el frontend se construye con React (usando Next.js en el proyecto next-wp-kit).`n`n## Instalación`n`n1. Clona este repositorio.`n2. Configura un entorno Local (Local by Flywheel) o similar.`n3. Importa la base de datos desde `sql/local.sql`.`n4. Activa el tema `penkode-headless`.`n`n## Desarrollo`n`n- Backend: WordPress con tema personalizado.`n- Frontend: Proyecto separado en `next-wp-kit`.`n`n## CI/CD`n`nEste proyecto incluye configuración para GitHub Actions para despliegue automático.`n`n## Contribución`n`nContribuciones son bienvenidas. Por favor, abre un issue o pull request.`n
+# Penkode Headless Framework
+
+**WordPress Headless para proyectos con frontend en React.**
+
+---
+
+## DescripciÃ³n
+
+Penkode Headless es un framework basado en WordPress que permite crear aplicaciones **headless**, donde:
+
+- WordPress actÃºa como **backend CMS**.
+- El frontend se construye con **React** (usando Next.js en el proyecto `next-wp-kit`).
+
+Este enfoque permite separar completamente backend y frontend, facilitando escalabilidad y flexibilidad en tus proyectos.
+
+---
+
+## InstalaciÃ³n
+
+1. Clona este repositorio:
+
+   ```bash
+   git clone https://github.com/tu-usuario/penkode-headless.git
