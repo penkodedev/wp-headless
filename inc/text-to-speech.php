@@ -1,109 +1,94 @@
 <?php
 
 if (!defined('ABSPATH')) {
-    exit; // Salir si se accede directamente.
+    exit; // Exit if accessed directly
 }
 
 // ===================================================================================================
 //
-//                      🔊 FUNCIONALIDAD DE TEXTO A VOZ PARA RECURSOS
+//                      🔊 TEXT-TO-SPEECH FUNCTIONALITY FOR CONFIGURED CPTs
 //
 // ===================================================================================================
 
 use Stichoza\GoogleTranslate\GoogleTranslate;
 
 /**
- * Se activa cuando se guarda un post del tipo 'recursos'.
- * **NOTA: Esta función ahora se llama vía AJAX, no con save_post.**
- * Genera un archivo de audio a partir del contenido del post.
+ * Triggered when saving a post of configured types.
+ * Generates an audio file from the post content.
  *
- * @param int     $post_id El ID del post que se está guardando.
- * @param WP_Post $post    El objeto del post.
+ * @param int     $post_id The ID of the post being saved.
+ * @param WP_Post $post    The post object.
  */
 function xamle_generate_audio_on_save($post_id, $post) {
-    // --- Verificaciones iniciales ---
+    // --- Initial checks ---
 
-    // --- Verificaciones ---
-    // 1. Solo actuar sobre el CPT 'recursos'.
-    if ($post->post_type !== 'recursos') {
+    // 1. Only act on configured CPTs for audio.
+    $allowed_cpts = ['recursos', 'noticias']; // Add more CPTs here if needed
+    if (!in_array($post->post_type, $allowed_cpts)) {
         return;
     }
-    
-    // 2. No actuar en autoguardados.
+
+    // 2. Don't act on autosaves.
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
 
-    // 3. No actuar en revisiones.
+    // 3. Don't act on revisions.
     if (wp_is_post_revision($post_id)) {
         return;
     }
 
-    // 4. Verificar que el post está publicado.
+    // 4. Verify the post is published.
     if ($post->post_status !== 'publish') {
         return;
     }
 
-    // --- Preparación del contenido ---
-    
-    // 5. Unir título y contenido para el audio.
+    // --- Content preparation ---
+
+    // 5. Combine title and content for audio.
     $title = $post->post_title;
-    // --- Método definitivo: Múltiples enfoques para extraer TODO el texto ---
     $content = $post->post_content;
     $text_content = '';
 
     if (!empty($content)) {
-        // MÉTODO 1: Usar strip_tags directamente (más confiable)
+        // METHOD 1: Use strip_tags directly (more reliable)
         $text_content = strip_tags($content);
         $text_content = preg_replace('/\s+/', ' ', trim($text_content));
-        
-        // MÉTODO 2: Respaldo con DOMDocument si strip_tags falla
+
+        // METHOD 2: Fallback with DOMDocument if strip_tags fails
         if (empty($text_content)) {
             $dom = new DOMDocument();
-            // Configurar para UTF-8
             $dom->encoding = 'utf-8';
-            // Usamos @ para suprimir warnings de HTML mal formado
             @$dom->loadHTML('<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $content . '</body></html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-            
+
             $body = $dom->getElementsByTagName('body')->item(0);
             if ($body) {
                 $text_content = $body->textContent;
                 $text_content = preg_replace('/\s+/', ' ', trim($text_content));
             }
         }
-        
-        // MÉTODO 3: Respaldo final con regex si todo falla
+
+        // METHOD 3: Final fallback with regex if everything fails
         if (empty($text_content)) {
             $text_content = preg_replace('/<[^>]*>/', ' ', $content);
             $text_content = html_entity_decode($text_content, ENT_QUOTES, 'UTF-8');
             $text_content = preg_replace('/\s+/', ' ', trim($text_content));
         }
-        
-        // DEBUG: Log para ver qué contenido se está extrayendo
-        // error_log('DEBUG TTS - Post ID: ' . $post_id . ' - Longitud del contenido extraído: ' . mb_strlen($text_content, 'UTF-8') . ' caracteres');
-        // error_log('DEBUG TTS - Primeros 200 caracteres: ' . mb_substr($text_content, 0, 200, 'UTF-8'));
     }
     $text_to_convert = $title . ". \n\n" . $text_content;
 
-    // DEBUG: Información completa del texto
-    // error_log('DEBUG TTS - Título: ' . $title);
-    // error_log('DEBUG TTS - Contenido extraído completo (' . mb_strlen($text_content, 'UTF-8') . ' chars): ' . $text_content);
-    // error_log('DEBUG TTS - Texto final a convertir (' . mb_strlen($text_to_convert, 'UTF-8') . ' chars): ' . $text_to_convert);
-
-    // Si no hay texto, no hacemos nada.
+    // If no text, do nothing.
     if (empty(trim($text_to_convert))) {
-        // error_log('DEBUG TTS - ERROR: Texto vacío, saliendo...');
         return;
     }
 
-    // --- Generación del audio ---
+    // --- Audio generation ---
 
     try {
         // --- Enfoque final y más robusto: Petición cURL manual por fragmentos ---
 
         // Check if the Composer class exists before using it.
         if (!class_exists('Stichoza\GoogleTranslate\GoogleTranslate')) {
-            error_log('XAMLE TTS Error: La clase GoogleTranslate no se encuentra. ¿Se instalaron las dependencias de Composer y se subieron al servidor?');
             return;
         }
 
@@ -165,6 +150,7 @@ function xamle_generate_audio_on_save($post_id, $post) {
             // error_log('DEBUG TTS - URL generada (' . strlen($request_url) . ' chars): ' . $request_url);
 
             // 3. Usamos wp_remote_get, que es la forma recomendada por WordPress para hacer peticiones.
+            error_log('XAMLE TTS: Llamando a Google API para chunk ' . ($index + 1) . ' - URL: ' . substr($request_url, 0, 100) . '...');
             $response = wp_remote_get($request_url, [
                 'timeout'     => 20,
                 'user-agent'  => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
@@ -176,9 +162,11 @@ function xamle_generate_audio_on_save($post_id, $post) {
 
             if (is_wp_error($response) || $http_code !== 200 || empty($chunk_audio)) {
                 $error_message = is_wp_error($response) ? $response->get_error_message() : 'Respuesta vacía o código HTTP no es 200.';
-                error_log('XAMLE TTS Error (wp_remote_get): Fallo al obtener audio para el post ' . $post_id . '. Código HTTP: ' . $http_code . '. Mensaje: ' . $error_message);
+                error_log('XAMLE TTS Error (wp_remote_get): Fallo al obtener audio para el post ' . $post_id . '. Código HTTP: ' . $http_code . '. Mensaje: ' . $error_message . '. URL: ' . substr($request_url, 0, 150));
                 continue; // Saltar al siguiente fragmento
             }
+
+            error_log('XAMLE TTS: Chunk ' . ($index + 1) . ' exitoso - Tamaño: ' . strlen($chunk_audio) . ' bytes');
 
             // error_log('DEBUG TTS - Chunk ' . ($index + 1) . ' procesado exitosamente. Tamaño audio: ' . strlen($chunk_audio) . ' bytes');
 
@@ -254,33 +242,35 @@ function xamle_generate_audio_on_save($post_id, $post) {
         update_post_meta($post_id, '_recurso_audio_id', $attachment_id);
 
     } catch (Exception $e) {
-        // Capturamos cualquier error de la librería y lo registramos.
-        error_log('XAMLE TTS Exception: ' . $e->getMessage() . ' para el post ' . $post_id);
-        // Añadimos un mensaje de error para que el editor lo vea (opcional, pero útil).
+        // Catch any library errors and log them.
+        error_log('XAMLE TTS Exception: ' . $e->getMessage() . ' for post ' . $post_id);
+        // Add error message for editor to see (optional but useful).
         add_action('admin_notices', function() use ($e) {
             ?>
             <div class="notice notice-error is-dismissible">
-                <p><strong>Error al generar el audio:</strong> <?php echo esc_html($e->getMessage()); ?></p>
+                <p><strong>Error generating audio:</strong> <?php echo esc_html($e->getMessage()); ?></p>
             </div>
             <?php
         });
     }
 }
-
-// Enganchamos nuestra función a la acción 'save_post_recursos'.
-add_action('save_post_recursos', 'xamle_generate_audio_on_save', 10, 2);
+// Hook our function to save post actions for allowed CPTs
+$allowed_cpts = ['recursos', 'noticias'];
+foreach ($allowed_cpts as $cpt) {
+    add_action('save_post_' . $cpt, 'xamle_generate_audio_on_save', 10, 2);
+}
 
 
 
 /**
- * Divide un texto largo en fragmentos más pequeños, respetando los finales de oración.
+ * Split long text into smaller chunks, respecting sentence endings.
  *
- * @param string $text El texto a dividir.
- * @param int $max_length La longitud máxima de cada fragmento.
- * @return array Un array de fragmentos de texto.
+ * @param string $text The text to split.
+ * @param int $max_length The maximum length of each chunk.
+ * @return array An array of text chunks.
  */
 function xamle_split_text_for_tts($text, $max_length = 100) {
-    // Limpia y normaliza el texto.
+    // Clean and normalize the text.
     $text = trim(preg_replace('/\s+/', ' ', $text));
     if (mb_strlen($text, 'UTF-8') <= $max_length) {
         return [$text];
@@ -289,27 +279,27 @@ function xamle_split_text_for_tts($text, $max_length = 100) {
     $chunks = [];
     $current_chunk = '';
 
-    // Divide el texto por palabras para tener un control más granular.
+    // Split text by words for more granular control.
     $words = explode(' ', $text);
 
     foreach ($words as $word) {
         if (empty($word)) continue;
 
-        // Comprueba si añadir la siguiente palabra superaría el límite.
+        // Check if adding the next word would exceed the limit.
         if (mb_strlen($current_chunk, 'UTF-8') + mb_strlen($word, 'UTF-8') + 1 > $max_length) {
-            // Si el chunk actual no está vacío, lo guardamos.
+            // If current chunk is not empty, save it.
             if (!empty($current_chunk)) {
                 $chunks[] = $current_chunk;
             }
-            // La palabra actual inicia un nuevo chunk.
+            // Current word starts a new chunk.
             $current_chunk = $word;
         } else {
-            // Si no supera el límite, añade la palabra al chunk actual.
+            // If it doesn't exceed, add word to current chunk.
             $current_chunk .= (empty($current_chunk) ? '' : ' ') . $word;
         }
     }
 
-    // No olvides guardar el último chunk que se estaba construyendo.
+    // Don't forget to save the last chunk being built.
     if (!empty($current_chunk)) {
         $chunks[] = $current_chunk;
     }
@@ -318,17 +308,18 @@ function xamle_split_text_for_tts($text, $max_length = 100) {
 }
 
 
+
 /**
- * Filtro para cambiar el directorio de subida de los audios.
+ * Filter to change the upload directory for audio files.
  *
- * @param array $dirs Rutas de subida de WordPress.
- * @return array Rutas modificadas.
+ * @param array $dirs WordPress upload paths.
+ * @return array Modified paths.
  */
 function xamle_custom_audio_upload_dir($dirs) {
-    // Define el subdirectorio personalizado
+    // Define custom subdirectory
     $custom_dir = 'mp3';
 
-    // Cambia las rutas para que apunten a /uploads/mp3/
+    // Change paths to point to /uploads/mp3/
     $dirs['subdir'] = '/' . $custom_dir;
     $dirs['path'] = $dirs['basedir'] . '/' . $custom_dir;
     $dirs['url'] = $dirs['baseurl'] . '/' . $custom_dir;

@@ -873,3 +873,19 @@ function get_post_likes_callback($request) {
     ]);
 }
 
+/**
+ * =============================================================================
+ *   AUDIO URL FOR RECURSOS
+ * =============================================================================
+ * Añade audio_url a la respuesta de recursos si existe audio generado
+ */
+function add_audio_url_to_post_response($response, $post, $request) {
+    $audio_id = get_post_meta($post->ID, '_recurso_audio_id', true);
+    if ($audio_id) {
+        $response->data['audio_url'] = wp_get_attachment_url($audio_id);
+    }
+    return $response;
+}
+add_filter('rest_prepare_recursos', 'add_audio_url_to_post_response', 10, 3);
+add_filter('rest_prepare_noticias', 'add_audio_url_to_post_response', 10, 3);
+

@@ -36,8 +36,8 @@ require_once get_template_directory() . '/inc/security.php';
 
 // require_once get_template_directory() . '/inc/wpml.php';
 // require_once get_template_directory() . '/inc/wp-nav/wp-nav-utils.php';
-// require_once get_template_directory() . '/vendor/autoload.php'; // Autoloader de Composer
-// require_once get_template_directory() . '/inc/text-to-speech.php'; // Funcionalidad de Texto a Voz
+require_once get_template_directory() . '/vendor/autoload.php'; // Autoloader de Composer
+require_once get_template_directory() . '/inc/text-to-speech.php'; // Funcionalidad de Texto a Voz
 
 
 
