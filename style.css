@@ -10,6 +10,10 @@ Version: 1.0
 For exclusive use of ...
 */
 
+
+.otgs-development-site-front-end { /* HIDE WPML ALERT */
+    display: none;
+}
 /*
 ------------------------------------------------------
         @GENERAL DASHBOARD STYLES  
@@ -83,23 +87,28 @@ body.page-template-login {
     background-color: #E2E2DA;
 }
 
-.page-template-login #grid-login {
+body.page-template-login p,
+body.page-template-login h1,
+body.page-template-login small,
+body.page-template-login #error-message,
+body.page-template-login .login-message {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body.page-template-login .login-message {
     display: flex;
     justify-content: center;
+    background: #ffe69c;
+    margin-bottom: 12px;
+    padding: 18px;
+}
+
+body.page-template-login  .login-info {
+    display: flex;
+        flex-direction: column;
     align-items: center;
 }
 
-.page-template-login #logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 70px auto 0 auto;
-}
-
-
-.page-template-login #logo-container img {
-    max-width: 160px;
-}
 
 .page-template-login input {
     width: -webkit-fill-available !important;
@@ -118,7 +127,6 @@ form#loginform .alert-warning {
     display: flex;
     color: red;
     background: #ffe69c;
-    margin-bottom: 12px;
     padding: 18px;
     width: 100%;
 }

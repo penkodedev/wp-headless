@@ -5,6 +5,15 @@ REMEMBER you have more WORDPRESS LOGIN SECURITY measures in
 JavaScript on /js folder and login.php Template
 *************************************************************************************/
 
+// Redirect all front-end requests to login page in headless mode to hide WP completely
+function headless_redirect_all() {
+    if (!is_admin() && strpos($_SERVER['REQUEST_URI'], '/login') === false && !wp_doing_ajax() && strpos($_SERVER['REQUEST_URI'], '/wp-json/') === false) {
+        wp_redirect(home_url('/login'));
+        exit;
+    }
+}
+add_action('init', 'headless_redirect_all');
+
 
 //************************* Protect WP-ADMIN and WP-LOGIN **************************************
 
@@ -175,15 +184,6 @@ add_filter('map_meta_cap', 'restrict_non_admin_plugin_theme_modifications', 10, 
 add_filter('pings_open', function() {
     return false;
 });
-
-//************************* REMOVE recent comments **************************************
-function remove_recent_comments_style()
-{
-  global $wp_widget_factory;
-  remove_action('wp_head', array($wp_widget_factory->widgets['WP_Widget_Recent_Comments'], 'recent_comments_style'));
-}
-add_action('widgets_init', 'remove_recent_comments_style');
-
 
 //******************** DISABLE Directory Browsing (wp-content/uploads/) **************************
 // If you're still seeing the directory listing in your browser after adding the code to functions.php,

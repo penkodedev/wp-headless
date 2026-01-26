@@ -25,11 +25,11 @@ class SecureLogin {
             loginForm.addEventListener('submit', this.handleFormSubmit.bind(this));
         }
 
-        // Error message dismissal
-        const errorDiv = document.querySelector('.login-error');
-        if (errorDiv) {
-            errorDiv.addEventListener('click', this.dismissError.bind(this));
-        }
+        // Error message dismissal - disabled to prevent accidental hiding
+        // const errorDiv = document.querySelector('.login-error');
+        // if (errorDiv) {
+        //     errorDiv.addEventListener('click', this.dismissError.bind(this));
+        // }
 
         // Keyboard navigation improvements
         this.setupKeyboardNavigation();
