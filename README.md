@@ -1,60 +1,52 @@
 # Penkode Headless Framework
 
-**WordPress Headless para proyectos con frontend en React.**
+**WordPress Headless for projects with a React frontend.**
+
+![Screenshot](screenshot.png)
 
 ---
 
-## Estructura General
+## General Structure
 
-- **Backend:** WordPress con tema personalizado `penkode-headless`, con funcionalidades avanzadas para headless.  
-- **Frontend:** Proyecto separado (`next-wp-kit`) que consume la API de WordPress.  
-- **Multilingüe:** Soporte completo WPML con endpoints para traducciones.
-
----
-
-## Características Principales
-
-### API REST Personalizada
-
-Más de 15 endpoints en `/wp-json/custom/v1`, incluyendo:
-
-- Menús unificados  
-- Búsqueda personalizada  
-- Navegación prev/next en posts  
-- Popups activos  
-- Información del sitio  
-- Sistema de likes  
-- Datos de hero sections  
-- Soporte WPML  
-
-### Tipos de Contenido Personalizados
-
-- `noticias` (noticias/artículos)  
-- `hero` (secciones hero)  
-- `recursos` (recursos)  
-- `modales` (popups/modales)  
-
-### Funcionalidades Adicionales
-
-- Campos personalizados avanzados  
-- Taxonomías custom  
-- Sistema de preview  
-- Integración con GraphQL  
-- Configuración CORS para desarrollo local (`localhost:3000`)
+- **Backend:** WordPress with a custom theme `penkode-headless`, featuring advanced headless functionalities.  
+- **Frontend:** Separate project (`next-wp-kit`) consuming the WordPress API.  
+- **Multilingual:** Full WPML support with translation endpoints.
 
 ---
 
-## Configuración
+## Main Features
 
-- Usa **Composer** para dependencias PHP  
-- Configuración incluida para **Local by Flywheel**  
-- Archivos de configuración para **nginx, PHP y MySQL**  
+### Custom REST API
+
+Over 15 endpoints at `/wp-json/custom/v1`, including:
+
+- Unified menus  
+- Custom search  
+- Post navigation (prev/next)  
+- Active popups  
+- Site information  
+- Like system  
+- Hero section data  
+- WPML language support  
+
+### Custom Post Types Integration
+
+All custom post types (CPTs) created in WordPress **automatically appear in the Next.js/React frontend** via the API, no additional frontend setup required.
+
+### Additional Features
+
+- Advanced custom fields  
+- Custom taxonomies  
+- Preview system  
+- GraphQL integration  
+- CORS setup for local development (`localhost:3000`)
 
 ---
 
-## Instalación
+## Configuration
 
-1. Clona el repositorio:
+- Uses **Composer** for PHP dependencies  
+- Setup included for **Local by Flywheel**  
+- Configuration files for **nginx, PHP, and MySQL**  
 
-   ```bash
-   git clone https://github.com/tu-usuario/penkode-headless.git
+---
