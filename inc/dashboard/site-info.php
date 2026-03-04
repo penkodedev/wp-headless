@@ -43,22 +43,125 @@ add_action('admin_init', function () {
 /**
  * Helpers para obtener y guardar opciones (funciona con o sin WPML)
  */
-function get_language_option($option_name) {
-    // Check if WPML is active and properly configured
-    if (class_exists('SitePress')) {
-        global $sitepress;
-        if ($sitepress && method_exists($sitepress, 'get_current_language')) {
-            try {
-                $current_lang = $sitepress->get_current_language();
-                if ($current_lang && $current_lang !== 'all') {
-                    $option_with_lang = get_option($option_name . '_' . $current_lang);
-                    if ($option_with_lang !== false) {
-                        return $option_with_lang;
-                    }
+function get_wpml_context_language() {
+    if (!class_exists('SitePress')) {
+        return null;
+    }
+
+    $normalize_wpml_lang = static function ($lang) {
+        if (empty($lang)) {
+            return null;
+        }
+
+        $lang = sanitize_key((string) $lang);
+        if ($lang === '' || $lang === 'all') {
+            return null;
+        }
+
+        $active_languages = apply_filters('wpml_active_languages', null, 'skip_missing=0');
+        if (is_array($active_languages) && isset($active_languages[$lang])) {
+            return $lang;
+        }
+
+        // Compatibilidad con formatos tipo en-US -> en.
+        if (strpos($lang, '-') !== false) {
+            $short = strtolower(substr($lang, 0, strpos($lang, '-')));
+            if ($short && $short !== 'all') {
+                if (!is_array($active_languages) || isset($active_languages[$short])) {
+                    return $short;
                 }
-            } catch (Exception $e) {
-                // WPML not properly configured, fall back to default
             }
+        }
+
+        return $lang;
+    };
+
+    // 1) Idioma explícito en la request (WPML suele usar `lang`).
+    foreach (['lang', 'wpml_language'] as $key) {
+        if (!empty($_POST[$key])) {
+            $candidate = $normalize_wpml_lang(wp_unslash($_POST[$key]));
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+
+        if (!empty($_GET[$key])) {
+            $candidate = $normalize_wpml_lang(wp_unslash($_GET[$key]));
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+
+        if (!empty($_REQUEST[$key])) {
+            $candidate = $normalize_wpml_lang(wp_unslash($_REQUEST[$key]));
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+    }
+
+    // 2) Parsear URI actual por si es una custom page con ?lang=xx.
+    if (!empty($_SERVER['REQUEST_URI'])) {
+        $query = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI']), PHP_URL_QUERY);
+        if ($query) {
+            parse_str($query, $uri_args);
+            if (!empty($uri_args['lang'])) {
+                $candidate = $normalize_wpml_lang($uri_args['lang']);
+                if ($candidate) {
+                    return $candidate;
+                }
+            }
+        }
+    }
+
+    // 3) En guardados indirectos (options.php), leer referer original.
+    if (!empty($_POST['_wp_http_referer'])) {
+        $referer = wp_unslash($_POST['_wp_http_referer']);
+        $referer_query = wp_parse_url($referer, PHP_URL_QUERY);
+        if ($referer_query) {
+            parse_str($referer_query, $query_args);
+            if (!empty($query_args['lang'])) {
+                $candidate = $normalize_wpml_lang($query_args['lang']);
+                if ($candidate) {
+                    return $candidate;
+                }
+            }
+        }
+    }
+
+    // 4) Cookie de WPML (clave moderna o legacy).
+    foreach (['wp-wpml_current_language', '_icl_current_language'] as $cookie_key) {
+        if (!empty($_COOKIE[$cookie_key])) {
+            $candidate = $normalize_wpml_lang(wp_unslash($_COOKIE[$cookie_key]));
+            if ($candidate) {
+                return $candidate;
+            }
+        }
+    }
+
+    // 5) Fallback estándar de WPML.
+    $current_lang = $normalize_wpml_lang(apply_filters('wpml_current_language', null));
+    if ($current_lang) {
+        return $current_lang;
+    }
+
+    global $sitepress;
+    if ($sitepress && method_exists($sitepress, 'get_current_language')) {
+        $sitepress_lang = $normalize_wpml_lang($sitepress->get_current_language());
+        if ($sitepress_lang) {
+            return $sitepress_lang;
+        }
+    }
+
+    return null;
+}
+
+function get_language_option($option_name) {
+    $current_lang = get_wpml_context_language();
+    if ($current_lang) {
+        $option_with_lang = get_option($option_name . '_' . $current_lang);
+        if ($option_with_lang !== false) {
+            return $option_with_lang;
         }
     }
 
@@ -67,20 +170,10 @@ function get_language_option($option_name) {
 }
 
 function update_language_option($option_name, $value) {
-    // Check if WPML is active and properly configured
-    if (class_exists('SitePress')) {
-        global $sitepress;
-        if ($sitepress && method_exists($sitepress, 'get_current_language')) {
-            try {
-                $current_lang = $sitepress->get_current_language();
-                if ($current_lang && $current_lang !== 'all') {
-                    update_option($option_name . '_' . $current_lang, $value);
-                    return;
-                }
-            } catch (Exception $e) {
-                // WPML not properly configured, fall back to default
-            }
-        }
+    $current_lang = get_wpml_context_language();
+    if ($current_lang) {
+        update_option($option_name . '_' . $current_lang, $value);
+        return;
     }
 
     // Fallback to default option without language suffix
@@ -507,16 +600,41 @@ function sanitize_i18n_settings($settings) {
  * Intercepta el guardado para registrar las opciones por idioma
  */
 add_action('admin_init', function () {
-    if (isset($_POST['option_page']) && $_POST['option_page'] === 'general') {
-        update_language_option('site_logo_light', absint($_POST['site_logo_light'] ?? 0));
-        update_language_option('site_logo_dark', absint($_POST['site_logo_dark'] ?? 0));
-        update_language_option('headless_front_url', esc_url_raw($_POST['headless_front_url'] ?? ''));
-        update_language_option('site_links', sanitize_site_links($_POST['site_links'] ?? []));
-        update_language_option('social_networks', sanitize_social_networks($_POST['social_networks'] ?? []));
-        update_language_option('contact_info', sanitize_contact_info($_POST['contact_info'] ?? []));
-        update_language_option('analytics_settings', sanitize_analytics_settings($_POST['analytics_settings'] ?? []));
-        update_language_option('i18n_settings', sanitize_i18n_settings($_POST['i18n_settings'] ?? []));
+    if (!is_admin() || !current_user_can('manage_options')) {
+        return;
     }
+
+    $tracked_fields = [
+        'site_logo_light',
+        'site_logo_dark',
+        'headless_front_url',
+        'site_links',
+        'social_networks',
+        'contact_info',
+        'analytics_settings',
+        'i18n_settings',
+    ];
+
+    $is_site_info_save = false;
+    foreach ($tracked_fields as $field) {
+        if (array_key_exists($field, $_POST)) {
+            $is_site_info_save = true;
+            break;
+        }
+    }
+
+    if (!$is_site_info_save) {
+        return;
+    }
+
+    update_language_option('site_logo_light', absint($_POST['site_logo_light'] ?? 0));
+    update_language_option('site_logo_dark', absint($_POST['site_logo_dark'] ?? 0));
+    update_language_option('headless_front_url', esc_url_raw($_POST['headless_front_url'] ?? ''));
+    update_language_option('site_links', sanitize_site_links($_POST['site_links'] ?? []));
+    update_language_option('social_networks', sanitize_social_networks($_POST['social_networks'] ?? []));
+    update_language_option('contact_info', sanitize_contact_info($_POST['contact_info'] ?? []));
+    update_language_option('analytics_settings', sanitize_analytics_settings($_POST['analytics_settings'] ?? []));
+    update_language_option('i18n_settings', sanitize_i18n_settings($_POST['i18n_settings'] ?? []));
 });
 
 
