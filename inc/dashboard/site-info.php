@@ -538,16 +538,41 @@ function sanitize_i18n_settings($settings) {
  * Intercepta el guardado para registrar las opciones por idioma
  */
 add_action('admin_init', function () {
-    if (isset($_POST['option_page']) && $_POST['option_page'] === 'general') {
-        update_language_option('site_logo_light', absint($_POST['site_logo_light'] ?? 0));
-        update_language_option('site_logo_dark', absint($_POST['site_logo_dark'] ?? 0));
-        update_language_option('headless_front_url', esc_url_raw($_POST['headless_front_url'] ?? ''));
-        update_language_option('site_links', sanitize_site_links($_POST['site_links'] ?? []));
-        update_language_option('social_networks', sanitize_social_networks($_POST['social_networks'] ?? []));
-        update_language_option('contact_info', sanitize_contact_info($_POST['contact_info'] ?? []));
-        update_language_option('analytics_settings', sanitize_analytics_settings($_POST['analytics_settings'] ?? []));
-        update_language_option('i18n_settings', sanitize_i18n_settings($_POST['i18n_settings'] ?? []));
+    if (!is_admin() || !current_user_can('manage_options')) {
+        return;
     }
+
+    $tracked_fields = [
+        'site_logo_light',
+        'site_logo_dark',
+        'headless_front_url',
+        'site_links',
+        'social_networks',
+        'contact_info',
+        'analytics_settings',
+        'i18n_settings',
+    ];
+
+    $is_site_info_save = false;
+    foreach ($tracked_fields as $field) {
+        if (array_key_exists($field, $_POST)) {
+            $is_site_info_save = true;
+            break;
+        }
+    }
+
+    if (!$is_site_info_save) {
+        return;
+    }
+
+    update_language_option('site_logo_light', absint($_POST['site_logo_light'] ?? 0));
+    update_language_option('site_logo_dark', absint($_POST['site_logo_dark'] ?? 0));
+    update_language_option('headless_front_url', esc_url_raw($_POST['headless_front_url'] ?? ''));
+    update_language_option('site_links', sanitize_site_links($_POST['site_links'] ?? []));
+    update_language_option('social_networks', sanitize_social_networks($_POST['social_networks'] ?? []));
+    update_language_option('contact_info', sanitize_contact_info($_POST['contact_info'] ?? []));
+    update_language_option('analytics_settings', sanitize_analytics_settings($_POST['analytics_settings'] ?? []));
+    update_language_option('i18n_settings', sanitize_i18n_settings($_POST['i18n_settings'] ?? []));
 });
 
 
