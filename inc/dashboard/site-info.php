@@ -43,22 +43,63 @@ add_action('admin_init', function () {
 /**
  * Helpers para obtener y guardar opciones (funciona con o sin WPML)
  */
-function get_language_option($option_name) {
-    // Check if WPML is active and properly configured
-    if (class_exists('SitePress')) {
-        global $sitepress;
-        if ($sitepress && method_exists($sitepress, 'get_current_language')) {
-            try {
-                $current_lang = $sitepress->get_current_language();
-                if ($current_lang && $current_lang !== 'all') {
-                    $option_with_lang = get_option($option_name . '_' . $current_lang);
-                    if ($option_with_lang !== false) {
-                        return $option_with_lang;
-                    }
-                }
-            } catch (Exception $e) {
-                // WPML not properly configured, fall back to default
+function get_wpml_context_language() {
+    if (!class_exists('SitePress')) {
+        return null;
+    }
+
+    // 1) Idioma explícito en la request (WPML suele usar `lang`).
+    foreach (['lang', 'wpml_language'] as $key) {
+        if (!empty($_POST[$key])) {
+            $lang = sanitize_key(wp_unslash($_POST[$key]));
+            if ($lang !== 'all') {
+                return $lang;
             }
+        }
+
+        if (!empty($_GET[$key])) {
+            $lang = sanitize_key(wp_unslash($_GET[$key]));
+            if ($lang !== 'all') {
+                return $lang;
+            }
+        }
+    }
+
+    // 2) En el guardado de options.php, WP mantiene el referer de la pantalla original.
+    if (!empty($_POST['_wp_http_referer'])) {
+        $referer = wp_unslash($_POST['_wp_http_referer']);
+        $referer_lang = wp_parse_url($referer, PHP_URL_QUERY);
+        if ($referer_lang) {
+            parse_str($referer_lang, $query_args);
+            if (!empty($query_args['lang']) && $query_args['lang'] !== 'all') {
+                return sanitize_key($query_args['lang']);
+            }
+        }
+    }
+
+    // 3) Fallback estándar de WPML.
+    $current_lang = apply_filters('wpml_current_language', null);
+    if (!empty($current_lang) && $current_lang !== 'all') {
+        return $current_lang;
+    }
+
+    global $sitepress;
+    if ($sitepress && method_exists($sitepress, 'get_current_language')) {
+        $sitepress_lang = $sitepress->get_current_language();
+        if (!empty($sitepress_lang) && $sitepress_lang !== 'all') {
+            return $sitepress_lang;
+        }
+    }
+
+    return null;
+}
+
+function get_language_option($option_name) {
+    $current_lang = get_wpml_context_language();
+    if ($current_lang) {
+        $option_with_lang = get_option($option_name . '_' . $current_lang);
+        if ($option_with_lang !== false) {
+            return $option_with_lang;
         }
     }
 
@@ -67,20 +108,10 @@ function get_language_option($option_name) {
 }
 
 function update_language_option($option_name, $value) {
-    // Check if WPML is active and properly configured
-    if (class_exists('SitePress')) {
-        global $sitepress;
-        if ($sitepress && method_exists($sitepress, 'get_current_language')) {
-            try {
-                $current_lang = $sitepress->get_current_language();
-                if ($current_lang && $current_lang !== 'all') {
-                    update_option($option_name . '_' . $current_lang, $value);
-                    return;
-                }
-            } catch (Exception $e) {
-                // WPML not properly configured, fall back to default
-            }
-        }
+    $current_lang = get_wpml_context_language();
+    if ($current_lang) {
+        update_option($option_name . '_' . $current_lang, $value);
+        return;
     }
 
     // Fallback to default option without language suffix
