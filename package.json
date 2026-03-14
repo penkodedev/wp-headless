@@ -1,0 +1,20 @@
+{
+  "name": "penkode-headless",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Headless WordPress theme — Sass dev workflow",
+  "scripts": {
+    "dev": "node sass-dev.js",
+    "build": "node sass-dev.js --build"
+  },
+  "sassdev": {
+    "proxy": "https://penkode-headless.local",
+    "port": 4200
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.0",
+    "chokidar": "^4.0.0",
+    "node-notifier": "^10.0.0",
+    "sass": "^1.80.0"
+  }
+}

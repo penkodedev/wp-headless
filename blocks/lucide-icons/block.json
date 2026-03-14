@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "custom/lucide-icon",
+  "title": "Lucide Icons",
+  "category": "design",
+  "icon": "star-filled",
+  "description": "Insert and customize Lucide icons on Gutenberg Editor",
+  "supports": {
+    "align": true
+  },
+  "textdomain": "penkode-headless",
+  "editorScript": "file:./index.js"
+}

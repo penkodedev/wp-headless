@@ -1,6 +1,23 @@
 <?php
 
 //*-------------------------------------------------
+//* Wrapper around register_post_type() that also
+//* tracks the slug in pk_own_cpts. This list is
+//* read by the Custom Post Types settings page to
+//* know which CPTs belong to this theme and allow
+//* toggling their visibility from the dashboard.
+//*-------------------------------------------------*//
+function pk_register_post_type($post_type, $args = []) {
+    register_post_type($post_type, $args);
+
+    $own = get_option('pk_own_cpts', []);
+    if (!in_array($post_type, $own, true)) {
+        $own[] = $post_type;
+        update_option('pk_own_cpts', $own, false);
+    }
+}
+
+//*-------------------------------------------------
 //*            NOTICIAS Custom Post Type
 //*-------------------------------------------------
 
@@ -44,7 +61,7 @@ function noticias_post_type()
     'graphql_plural_name' => 'noticias',
   );
 
-  register_post_type('noticias', $args);
+  pk_register_post_type('noticias', $args);
 }
 add_action('init', 'noticias_post_type');
 
@@ -77,24 +94,26 @@ $labels = array(
     'not_found' => __('No se encontraron Heroes', 'textdomain'),
     'not_found_in_trash' => __('No se encontraron Heroes en la papelera', 'textdomain'),
     'parent_item_colon' => '',
-    'all_items' => __('Todos los Heroes', 'textdomain')
+    'all_items' => __('Hero', 'textdomain')
 );
 
   $args = array(
     'supports' => $supports,
     'labels' => $labels,
-    'public' => true,
-    'has_archive' => true,
+    'public' => false,
+    'show_ui' => true,
+    'show_in_menu' => 'custom-settings',
+    'has_archive' => false,
     'menu_icon' => 'dashicons-star-filled',
-    'exclude_from_search' => false,
-    'rewrite' => array('slug' => 'hero'), // URL slug -> /hero/
-    'show_in_rest' => false, // ⚠️ Desactivado: usamos classic editor para custom meta boxes
+    'exclude_from_search' => true,
+    'rewrite' => false,
+    'show_in_rest' => true,
     'show_in_graphql' => true,
     'graphql_single_name' => 'hero',
     'graphql_plural_name' => 'heroes',
   );
 
-  register_post_type('hero', $args);
+  pk_register_post_type('hero', $args);
 }
 add_action('init', 'hero_post_type');
 
@@ -151,7 +170,7 @@ function recursos_post_type()
     'graphql_plural_name' => 'recursos',
   );
 
-  register_post_type('recursos', $args);
+  pk_register_post_type('recursos', $args);
 }
 add_action('init', 'recursos_post_type');
 
@@ -183,23 +202,75 @@ function modales_post_type() {
     'not_found' => __('No se encontraron Modales', 'textdomain'),
     'not_found_in_trash' => __('No se encontraron Modales en la papelera', 'textdomain'),
     'parent_item_colon' => '',
-    'all_items' => __('Todos los Modales', 'textdomain'),
+    'all_items' => __('Modales', 'textdomain'),
   );
 
   $args = array(
     'supports' => $supports,
     'labels' => $labels,
-    'public' => true,
-    'has_archive' => true,
+    'public' => false,
+    'show_ui' => true,
+    'show_in_menu' => 'custom-settings',
+    'has_archive' => false,
     'menu_icon' => 'dashicons-format-gallery',
-    'exclude_from_search' => false,
-    'rewrite' => array('slug' => 'modales'),
+    'exclude_from_search' => true,
+    'rewrite' => false,
     'show_in_rest' => true,
     'show_in_graphql' => true,
     'graphql_single_name' => 'modal',
     'graphql_plural_name' => 'modals',
   );
 
-  register_post_type('modales', $args);
+  pk_register_post_type('modales', $args);
 }
 add_action('init', 'modales_post_type');
+
+
+
+//*-------------------------------------------------
+//*            SLIDERS Custom Post Type
+//*-------------------------------------------------
+
+function sliders_post_type() {
+
+  $supports = array(
+    'title',
+    // 'thumbnail',
+    'revisions',
+  );
+
+  $labels = array(
+    'name' => __('Sliders', 'penkode-headless'),
+    'singular_name' => __('Slider', 'penkode-headless'),
+    'menu_name' => __('Sliders', 'penkode-headless'),
+    'add_new' => __('Add Slider', 'penkode-headless'),
+    'add_new_item' => __('Add New Slider', 'penkode-headless'),
+    'edit_item' => __('Edit Slider', 'penkode-headless'),
+    'new_item' => __('New Slider', 'penkode-headless'),
+    'view_item' => __('View Slider', 'penkode-headless'),
+    'search_items' => __('Search Sliders', 'penkode-headless'),
+    'not_found' => __('No sliders found', 'penkode-headless'),
+    'not_found_in_trash' => __('No sliders found in trash', 'penkode-headless'),
+    'parent_item_colon' => '',
+    'all_items' => __('Sliders', 'penkode-headless'),
+  );
+
+  $args = array(
+    'supports' => $supports,
+    'labels' => $labels,
+    'public' => false,
+    'show_ui' => true,
+    'show_in_menu' => 'custom-settings',
+    'has_archive' => false,
+    'menu_icon' => 'dashicons-slides',
+    'exclude_from_search' => true,
+    'rewrite' => false,
+    'show_in_rest' => true,
+    'show_in_graphql' => true,
+    'graphql_single_name' => 'slider',
+    'graphql_plural_name' => 'sliders',
+  );
+
+  pk_register_post_type('sliders', $args);
+}
+add_action('init', 'sliders_post_type');

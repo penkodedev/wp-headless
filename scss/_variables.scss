@@ -1,0 +1,16 @@
+// ==========================================================
+//  Shared SCSS variables (compile-time)
+//  CSS custom properties (--pk-*) live in login.scss for runtime
+// ==========================================================
+
+// Breakpoints
+$bp-mobile: 480px;
+
+// Dashboard palette
+$dash-primary:       #313131;
+$dash-primary-hover: #535353;
+$dash-gray-light:    #f3f4f6;
+$dash-gray:          #d1d5db;
+$dash-gray-dark:     #6b7280;
+$dash-radius:        8px;
+$dash-text:          #111827;
