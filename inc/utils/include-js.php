@@ -43,6 +43,19 @@ function enqueue_admin_scripts($hook) {
                 true
             );
         }
+        if ('maps' === $post_type) {
+            $mapbox_token = defined('MAPBOX_ACCESS_TOKEN') && MAPBOX_ACCESS_TOKEN ? MAPBOX_ACCESS_TOKEN : '';
+            wp_enqueue_script(
+                'admin-maps-metabox',
+                get_template_directory_uri() . '/js/admin-maps-metabox.js',
+                array('jquery'),
+                '1.0.0',
+                true
+            );
+            wp_localize_script('admin-maps-metabox', 'pkMaps', [
+                'mapboxToken' => $mapbox_token,
+            ]);
+        }
     }
 }
 add_action('admin_enqueue_scripts', 'enqueue_admin_scripts');

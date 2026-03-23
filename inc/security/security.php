@@ -119,45 +119,45 @@ function pk_record_admin_attempt(string $ip): void {
 
 // --- Protect wp-login.php & wp-admin -------------------------------------
 
-function pk_protect_wp_login() {
-    $uri = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
+// function pk_protect_wp_login() {
+//     $uri = sanitize_text_field($_SERVER['REQUEST_URI'] ?? '');
 
-    // Early return — only act on wp-login.php and wp-admin
-    $is_login = strpos($uri, '/wp-login.php') !== false;
-    $is_admin = strpos($uri, '/wp-admin') !== false;
-    if (!$is_login && !$is_admin) {
-        return;
-    }
+//     // Early return — only act on wp-login.php and wp-admin
+//     $is_login = strpos($uri, '/wp-login.php') !== false;
+//     $is_admin = strpos($uri, '/wp-admin') !== false;
+//     if (!$is_login && !$is_admin) {
+//         return;
+//     }
 
-    $ip = pk_get_client_ip();
-    $login_url = home_url('/login');
+//     $ip = pk_get_client_ip();
+//     $login_url = home_url('/login');
 
-    if (pk_is_ip_locked($ip)) {
-        wp_die(
-            __('Access temporarily blocked due to security policy.', 'penkode-headless'),
-            __('Access Blocked', 'penkode-headless'),
-            ['response' => 429]
-        );
-    }
+//     if (pk_is_ip_locked($ip)) {
+//         wp_die(
+//             __('Access temporarily blocked due to security policy.', 'penkode-headless'),
+//             __('Access Blocked', 'penkode-headless'),
+//             ['response' => 429]
+//         );
+//     }
 
-    if ($is_login) {
-        if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-            return;
-        }
-        pk_record_admin_attempt($ip);
-        pk_log_security_event('WP_LOGIN_ACCESS', "URI: $uri", $ip);
-        wp_redirect($login_url);
-        exit;
-    }
+//     if ($is_login) {
+//         if (isset($_GET['action']) && $_GET['action'] === 'logout') {
+//             return;
+//         }
+//         pk_record_admin_attempt($ip);
+//         pk_log_security_event('WP_LOGIN_ACCESS', "URI: $uri", $ip);
+//         wp_redirect($login_url);
+//         exit;
+//     }
 
-    if ($is_admin && !is_user_logged_in()) {
-        pk_record_admin_attempt($ip);
-        pk_log_security_event('WP_ADMIN_ACCESS', "URI: $uri", $ip);
-        wp_redirect($login_url);
-        exit;
-    }
-}
-add_action('init', 'pk_protect_wp_login', 1);
+//     if ($is_admin && !is_user_logged_in()) {
+//         pk_record_admin_attempt($ip);
+//         pk_log_security_event('WP_ADMIN_ACCESS', "URI: $uri", $ip);
+//         wp_redirect($login_url);
+//         exit;
+//     }
+// }
+// add_action('init', 'pk_protect_wp_login', 1);
 
 
 // --- Post-logout redirect ------------------------------------------------

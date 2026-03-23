@@ -379,6 +379,18 @@ add_action('rest_api_init', function () {
 
 
     /*--------------------------------------------------------------------------------------
+    🗺️ MAP ENDPOINT
+    Route: /custom/v1/map
+    Returns all locations (pins) + default center/zoom for the single map.
+    --------------------------------------------------------------------------------------*/
+    register_rest_route('custom/v1', '/map', [
+        'methods'  => 'GET',
+        'callback' => 'get_map_data_callback',
+        'permission_callback' => '__return_true',
+    ]);
+
+
+    /*--------------------------------------------------------------------------------------
     🎨 APPEARANCE SETTINGS ENDPOINT
     Route: /custom/v1/appearance
     Returns appearance configuration (dark mode toggle, default color scheme).

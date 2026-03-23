@@ -58,6 +58,7 @@ function pk_post_type_to_tags(string $post_type): array {
         'post'  => ['all-posts'],
         'page'  => ['all-pages'],
         'hero'  => ['site-info'],
+        'maps'  => ['all-map'],
     ];
 
     return $map[$post_type] ?? ['all-posts'];
@@ -102,10 +103,19 @@ $pk_revalidate_options = [
     'appearance_default_mode',
     'blogname',
     'blogdescription',
+    'pk_map_center_lat',
+    'pk_map_center_lng',
+    'pk_map_zoom',
+    'pk_map_clustering',
+    'pk_map_style',
+    'pk_map_height',
+    'pk_map_tooltip_trigger',
+    'pk_map_zoom_controls',
 ];
 
 foreach ($pk_revalidate_options as $opt) {
-    add_action("update_option_{$opt}", function () {
-        pk_revalidate_frontend(['site-info']);
+    $tags = (strpos($opt, 'pk_map_') === 0) ? ['all-map'] : ['site-info'];
+    add_action("update_option_{$opt}", function () use ($tags) {
+        pk_revalidate_frontend($tags);
     });
 }

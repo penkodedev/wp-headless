@@ -141,6 +141,7 @@ function pk_render_custom_settings_page() {
                 <button type="button" class="pk-tab" data-tab="appearance"><?php _e('Components', 'penkode-headless'); ?></button>
                 <button type="button" class="pk-tab" data-tab="counter-stats"><?php _e('Counter Stats', 'penkode-headless'); ?></button>
                 <button type="button" class="pk-tab" data-tab="languages"><?php _e('Languages', 'penkode-headless'); ?></button>
+                <button type="button" class="pk-tab" data-tab="map"><?php _e('Map', 'penkode-headless'); ?></button>
                 <button type="button" class="pk-tab" data-tab="posts"><?php _e('Posts', 'penkode-headless'); ?></button>
                 <button type="button" class="pk-tab" data-tab="search"><?php _e('Search', 'penkode-headless'); ?></button>
                 <button type="button" class="pk-tab" data-tab="site-info"><?php _e('Site Info', 'penkode-headless'); ?></button>
@@ -169,9 +170,10 @@ function pk_render_custom_settings_page() {
 
             <div class="pk-tab-content" id="tab-appearance">
                 <h2 class="title-tab"><?php _e('Appearance Settings', 'penkode-headless'); ?></h2>
-                <p class="tab-description">Here you can activate/deactivate the main <b>UI components</b> for the frontend.</p>
+                <p class="tab-description">Here you can activate/deactivate the main <b>UI components</b> for the entire website.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php do_settings_sections('custom-settings-appearance'); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-chatbot">
@@ -179,6 +181,7 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">AI chatbot settings, API keys and behaviour for the frontend assistant.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php do_settings_sections('custom-settings-chatbot'); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-counter-stats">
@@ -186,6 +189,7 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">Animated number counters. Create groups and insert them via shortcode.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php pk_render_counter_stats_settings(); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-languages">
@@ -193,6 +197,14 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">WPML integration, default language and multilingual routing options.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php do_settings_sections('custom-settings-languages'); ?>
+            </div>
+
+            <div class="pk-tab-content" id="tab-map">
+                <h2 class="title-tab"><?php _e('Map', 'penkode-headless'); ?></h2>
+                <p class="tab-description"><?php _e('Configure your map here. Default center and zoom and more. To add locations go to Custom Settings → Map.', 'penkode-headless'); ?></p>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
+                <?php do_settings_sections('custom-settings-map'); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-posts">
@@ -214,6 +226,7 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">Contact details, social links and general site information for the frontend.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php do_settings_sections('custom-settings-site-info'); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-ticker">
@@ -221,6 +234,7 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">Scrolling text ticker: content, speed, visibility and page assignment.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php next_wp_kit_render_ticker_settings(); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
             <div class="pk-tab-content" id="tab-tooltips">
@@ -228,6 +242,7 @@ function pk_render_custom_settings_page() {
                 <p class="tab-description">Rich-text tooltips. Link them in Gutenberg using the generated anchor URLs.</p>
                 <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
                 <?php pk_render_tooltip_settings(); ?>
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
             
             <div class="pk-tab-content" id="tab-smtp">
@@ -240,6 +255,7 @@ function pk_render_custom_settings_page() {
                     <button type="button" class="button" id="pk-diagnose-smtp" style="margin-left:8px;"><?php _e('Diagnose SMTP', 'penkode-headless'); ?></button>
                     <span id="pk-test-smtp-result" style="margin-left: 10px;"></span>
                 </p>
+
                 <script>
                 jQuery(document).ready(function($) {
                     $('#pk-diagnose-smtp').on('click', function() {
@@ -281,6 +297,8 @@ function pk_render_custom_settings_page() {
                     });
                 });
                 </script>
+                
+                <input type="submit" class="save-changes" value="<?php esc_attr_e('Save Changes', 'penkode-headless'); ?>">
             </div>
 
         </form>

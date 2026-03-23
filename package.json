@@ -9,7 +9,7 @@
   },
   "sassdev": {
     "proxy": "https://penkode-headless.local",
-    "port": 4200
+    "port": 4000
   },
   "devDependencies": {
     "browser-sync": "^3.0.0",

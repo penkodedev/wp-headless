@@ -274,3 +274,51 @@ function sliders_post_type() {
   pk_register_post_type('sliders', $args);
 }
 add_action('init', 'sliders_post_type');
+
+
+//*-------------------------------------------------
+//*            MAP Custom Post Type (each post = one location/pin)
+//*-------------------------------------------------
+
+function maps_post_type() {
+
+  $supports = array(
+    'title',
+    'revisions',
+  );
+
+  $labels = array(
+    'name' => __('Map', 'penkode-headless'),
+    'singular_name' => __('Location', 'penkode-headless'),
+    'menu_name' => __('Map', 'penkode-headless'),
+    'add_new' => __('Add Location', 'penkode-headless'),
+    'add_new_item' => __('Add New Location', 'penkode-headless'),
+    'edit_item' => __('Edit Location', 'penkode-headless'),
+    'new_item' => __('New Location', 'penkode-headless'),
+    'view_item' => __('View Location', 'penkode-headless'),
+    'search_items' => __('Search Locations', 'penkode-headless'),
+    'not_found' => __('No locations found', 'penkode-headless'),
+    'not_found_in_trash' => __('No locations found in trash', 'penkode-headless'),
+    'parent_item_colon' => '',
+    'all_items' => __('Map', 'penkode-headless'),
+  );
+
+  $args = array(
+    'supports' => $supports,
+    'labels' => $labels,
+    'public' => false,
+    'show_ui' => true,
+    'show_in_menu' => 'custom-settings',
+    'has_archive' => false,
+    'menu_icon' => 'dashicons-location',
+    'exclude_from_search' => true,
+    'rewrite' => false,
+    'show_in_rest' => true,
+    'show_in_graphql' => true,
+    'graphql_single_name' => 'map',
+    'graphql_plural_name' => 'maps',
+  );
+
+  pk_register_post_type('maps', $args);
+}
+add_action('init', 'maps_post_type');

@@ -14,6 +14,7 @@
 
 $pk_appearance_components = [
     'appearance_breadcrumbs_enabled'    => ['label' => 'Breadcrumbs',      'description' => 'Navigation breadcrumbs on inner pages',           'default' => '1'],
+    'appearance_mega_menu_enabled'      => ['label' => 'Mega Menu',        'description' => 'Mega menú expandido en desktop (solo mainnav)',     'default' => '0'],
     'appearance_copylink_enabled'       => ['label' => 'Copy Link',        'description' => 'Button to copy the page URL to clipboard',       'default' => '1'],
     'appearance_darkmode_enabled'       => ['label' => 'Dark Mode Toggle', 'description' => 'Show dark mode toggle on the frontend',          'default' => '1'],
     'appearance_default_mode'           => ['label' => 'Default Color Mode','description' => '',                                               'default' => 'light', 'type' => 'select'],

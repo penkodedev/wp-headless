@@ -79,7 +79,7 @@ function pk_render_tooltip_settings() {
     ?>
     
     <div id="pk-tooltips-container">
-        <div id="pk-tooltips-list">
+        <div class="pk-rows-list">
             <?php
             if (!empty($tooltips)) {
                 foreach ($tooltips as $index => $tooltip) {
@@ -90,21 +90,17 @@ function pk_render_tooltip_settings() {
             ?>
         </div>
         
-        <button type="button" class="button button-primary" id="pk-add-tooltip">
+        <button type="button" class="add-item" id="pk-add-tooltip">
             + Add Tooltip
         </button>
     </div>
     
     <!-- HIDDEN TEMPLATE FOR NEW TOOLTIPS -->
     <script type="text/html" id="pk-tooltip-template">
-        <div class="pk-tooltip-row" data-index="{{INDEX}}">
-            <div class="pk-tooltip-actions">
-                <button type="button" class="button button-small pk-remove-tooltip">✕ Remove</button>
-            </div>
-            
+        <div class="pk-row" data-index="{{INDEX}}">
             <h4>Tooltip #<span class="tooltip-number">{{INDEX_PLUS_1}}</span></h4>
             
-            <div class="pk-tooltip-field">
+            <div class="pk-field">
                 <label>Link URL</label>
                 <div class="pk-shortcode-display">
                     <code>#tooltip-{{INDEX_PLUS_1}}</code>
@@ -113,7 +109,7 @@ function pk_render_tooltip_settings() {
                 <p class="description">In Gutenberg: Select text → Insert link → Paste this URL</p>
             </div>
             
-            <div class="pk-tooltip-field">
+            <div class="pk-field">
                 <label>Tooltip Content</label>
                 <div class="pk-tooltip-editor-container">
                     <textarea 
@@ -123,6 +119,10 @@ function pk_render_tooltip_settings() {
                         rows="4"
                         placeholder="Tooltip content..."></textarea>
                 </div>
+            </div>
+            
+            <div class="pk-row-actions">
+                <button type="button" class="button button-small pk-remove-row">✕ Remove</button>
             </div>
         </div>
     </script>
@@ -134,7 +134,7 @@ function pk_render_tooltip_settings() {
         
         // Initialize editors for existing tooltips
         function initExistingEditors() {
-            $('.pk-tooltip-row').each(function(index) {
+            $('#pk-tooltips-container .pk-row').each(function(index) {
                 const $row = $(this);
                 const content = $row.find('.pk-tooltip-content-editor').val();
                 const textareaId = 'tooltip-editor-' + index;
@@ -180,7 +180,7 @@ function pk_render_tooltip_settings() {
             
             // Add to list
             const $newTooltip = $(newTooltip);
-            $('#pk-tooltips-list').append($newTooltip);
+            $('#pk-tooltips-container .pk-rows-list').append($newTooltip);
             
             // Initialize editor for new tooltip
             const textareaId = 'tooltip-editor-' + tooltipIndex;
@@ -198,7 +198,7 @@ function pk_render_tooltip_settings() {
                     });
                     
                     // Hide textarea original
-                    $('#pk-tooltips-list .pk-tooltip-row[data-index="' + tooltipIndex + '"]')
+                    $('#pk-tooltips-container .pk-row[data-index="' + tooltipIndex + '"]')
                         .find('.pk-tooltip-content-editor').hide();
                 }, 100);
             }
@@ -208,9 +208,9 @@ function pk_render_tooltip_settings() {
         });
         
         // Remove tooltip
-        $(document).on('click', '.pk-remove-tooltip', function() {
+        $(document).on('click', '#pk-tooltips-container .pk-remove-row', function() {
             if (confirm('Are you sure you want to remove this tooltip?')) {
-                const $row = $(this).closest('.pk-tooltip-row');
+                const $row = $(this).closest('.pk-row');
                 const index = $row.data('index');
                 
                 // Destroy editor if exists
@@ -225,7 +225,7 @@ function pk_render_tooltip_settings() {
         });
         
         // Copy shortcode to clipboard
-        $(document).on('click', '.pk-copy-shortcode', function() {
+        $(document).on('click', '#pk-tooltips-container .pk-copy-shortcode', function() {
             const shortcode = $(this).data('shortcode');
             const $btn = $(this);
             
@@ -256,7 +256,7 @@ function pk_render_tooltip_settings() {
         
         // Before saving, copy editor content to textareas
         $(document).on('submit', 'form', function() {
-            $('.pk-tooltip-row').each(function(index) {
+            $('#pk-tooltips-container .pk-row').each(function(index) {
                 const editorId = 'tooltip-editor-' + index;
                 const $textarea = $(this).find('.pk-tooltip-content-editor');
                 
@@ -282,23 +282,19 @@ function pk_render_tooltip_row($index, $tooltip) {
     $tooltip_id = (string)($index + 1);
     $content = isset($tooltip['content']) ? $tooltip['content'] : '';
     ?>
-    <div class="pk-tooltip-row" data-index="<?php echo $index; ?>">
-        <div class="pk-tooltip-actions">
-            <button type="button" class="button button-small pk-remove-tooltip">✕ Remove</button>
-        </div>
-        
+    <div class="pk-row" data-index="<?php echo $index; ?>">
         <h4>Tooltip #<span class="tooltip-number"><?php echo $index + 1; ?></span></h4>
         
-        <div class="pk-tooltip-field">
+        <div class="pk-field">
             <label>Link URL</label>
             <div class="pk-shortcode-display">
                 <code>#tooltip-<?php echo $tooltip_id; ?></code>
-                <button type="button" class="button button-small pk-copy-shortcode" data-shortcode='#tooltip-<?php echo $tooltip_id; ?>'>Copy</button>
+                <button type="button" class="button pk-copy-shortcode" data-shortcode='#tooltip-<?php echo $tooltip_id; ?>'>Copy</button>
             </div>
             <p class="description">In Gutenberg: Select text → Insert link → Paste this URL</p>
         </div>
         
-        <div class="pk-tooltip-field">
+        <div class="pk-field">
             <?php
             wp_editor($content, $editor_id, [
                 'textarea_name' => 'tooltips_data[' . $index . '][content]',
@@ -311,6 +307,10 @@ function pk_render_tooltip_row($index, $tooltip) {
                 ],
             ]);
             ?>
+        </div>
+        
+        <div class="pk-row-actions">
+            <button type="button" class="button button-small pk-remove-row">✕ Remove</button>
         </div>
     </div>
     <?php

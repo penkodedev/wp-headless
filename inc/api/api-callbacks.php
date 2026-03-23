@@ -82,11 +82,16 @@ function menus_endpoint_callback($request) {
         }
 
         $cleaned_menu = clean_menu_items($menu_items, $lang);
-        return new WP_REST_Response(build_menu_tree($cleaned_menu), 200);
+        $mega_enabled = get_option('appearance_mega_menu_enabled', '0') === '1';
+        return new WP_REST_Response([
+            'items' => build_menu_tree($cleaned_menu),
+            'mega_menu_enabled' => $mega_enabled,
+        ], 200);
     }
 
     // If no parameters, return all menus.
     $all_menus_data = get_all_menus_data();
+    $all_menus_data['mega_menu_enabled'] = get_option('appearance_mega_menu_enabled', '0') === '1';
     return new WP_REST_Response($all_menus_data, 200);
 }
 
@@ -150,6 +155,9 @@ function clean_menu_items($menu_items, $lang = null) {
             }
         }
         
+        $image_id = get_post_meta($item->ID, '_menu_item_image_id', true);
+        $image_url = $image_id ? wp_get_attachment_image_url((int) $image_id, 'medium') : null;
+
         $cleaned_items[] = [
             'id' => $item->ID,
             'parent' => $item->menu_item_parent,
@@ -157,6 +165,8 @@ function clean_menu_items($menu_items, $lang = null) {
             'url' => $url,
             'target' => $item->target,
             'classes' => $item->classes,
+            'description' => !empty($item->description) ? $item->description : null,
+            'image' => $image_url,
         ];
     }
     return $cleaned_items;
@@ -681,6 +691,64 @@ function get_slider_data_callback($request) {
     }
 
     return rest_ensure_response($response);
+}
+
+
+/**
+ * ===================================================================
+ * 🗺️ MAP ENDPOINT CALLBACK
+ * Returns all locations (pins) + default center/zoom. One map shows all.
+ * ===================================================================
+ */
+function get_map_data_callback($request) {
+    $center_lat = get_option('pk_map_center_lat', '');
+    $center_lng = get_option('pk_map_center_lng', '');
+    $zoom       = get_option('pk_map_zoom', '12');
+    $zoom       = max(1, min(20, (int) ($zoom ?: 12)));
+    $clustering = get_option('pk_map_clustering', '0') === '1';
+    $style      = get_option('pk_map_style', 'streets');
+    $height     = get_option('pk_map_height', '400px') ?: '400px';
+    $tooltip    = get_option('pk_map_tooltip_trigger', 'click');
+    $zoom_ctrls = get_option('pk_map_zoom_controls', '1') === '1';
+
+    $query = new WP_Query([
+        'post_type'      => 'maps',
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'orderby'        => 'menu_order title',
+        'order'          => 'ASC',
+    ]);
+
+    $locations = [];
+    foreach ($query->posts as $post) {
+        $lat = get_post_meta($post->ID, '_map_location_lat', true);
+        $lng = get_post_meta($post->ID, '_map_location_lng', true);
+        if ($lat === '' || $lng === '') {
+            continue;
+        }
+        $locations[] = [
+            'id'          => $post->ID,
+            'title'       => $post->post_title,
+            'lat'         => (float) $lat,
+            'lng'         => (float) $lng,
+            'address'     => get_post_meta($post->ID, '_map_location_addr', true) ?: '',
+            'description' => get_post_meta($post->ID, '_map_location_desc', true) ?: '',
+        ];
+    }
+
+    return rest_ensure_response([
+        'center'    => [
+            'lat' => $center_lat !== '' ? (float) $center_lat : null,
+            'lng' => $center_lng !== '' ? (float) $center_lng : null,
+        ],
+        'zoom'      => $zoom,
+        'clustering' => $clustering,
+        'style'     => $style,
+        'height'    => $height,
+        'tooltipTrigger' => $tooltip,
+        'showZoomControls' => $zoom_ctrls,
+        'locations' => $locations,
+    ]);
 }
 
 
@@ -1363,10 +1431,22 @@ function get_counter_stats_callback($request) {
     }
 
     $group = $groups[$index];
+    $type  = isset($group['type']) && $group['type'] === 'countdown' ? 'countdown' : 'counter';
+    $align = isset($group['align']) && in_array($group['align'], ['left', 'center', 'right'], true) ? $group['align'] : 'center';
 
-    return rest_ensure_response([
-        'title'    => $group['title'] ?? '',
-        'duration' => intval($group['duration'] ?? 2000),
-        'items'    => $group['items'] ?? [],
-    ]);
+    $response = [
+        'title' => $group['title'] ?? '',
+        'type'  => $type,
+        'align' => $align,
+    ];
+
+    if ($type === 'countdown') {
+        $response['start_date'] = $group['start_date'] ?? '';
+        $response['end_date']   = $group['end_date'] ?? '';
+    } else {
+        $response['duration'] = intval($group['duration'] ?? 2000);
+        $response['items']    = $group['items'] ?? [];
+    }
+
+    return rest_ensure_response($response);
 }

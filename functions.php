@@ -11,6 +11,7 @@ require_once get_template_directory() . '/inc/api/revalidation.php';
 require_once get_template_directory() . '/inc/custom-meta/custom-fields.php';
 require_once get_template_directory() . '/inc/custom-meta/hero.php';
 require_once get_template_directory() . '/inc/custom-meta/sliders.php';
+require_once get_template_directory() . '/inc/custom-meta/nav-menu-fields.php';
 
 require_once get_template_directory() . '/inc/custom-posts/post-types.php';
 require_once get_template_directory() . '/inc/custom-posts/utils.php';
@@ -28,6 +29,7 @@ require_once get_template_directory() . '/inc/dashboard/settings/api-endpoints.p
 require_once get_template_directory() . '/inc/dashboard/settings/chat-bot.php';
 require_once get_template_directory() . '/inc/dashboard/settings/home.php';
 require_once get_template_directory() . '/inc/dashboard/settings/languages.php';
+require_once get_template_directory() . '/inc/dashboard/settings/map.php';
 require_once get_template_directory() . '/inc/dashboard/settings/posts.php';
 require_once get_template_directory() . '/inc/dashboard/settings/search.php';
 require_once get_template_directory() . '/inc/dashboard/settings/site-info.php';
@@ -37,6 +39,8 @@ require_once get_template_directory() . '/inc/dashboard/settings/appearance.php'
 require_once get_template_directory() . '/inc/dashboard/settings/counter-stats.php';
 require_once get_template_directory() . '/inc/dashboard/settings/smtp.php';
 require_once get_template_directory() . '/inc/dashboard/settings/settings-page.php';
+
+require_once get_template_directory() . '/inc/maps/maps.php';
 
 require_once get_template_directory() . '/inc/media/audio-post.php';
 require_once get_template_directory() . '/inc/media/text-to-speech.php';

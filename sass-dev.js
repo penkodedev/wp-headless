@@ -10,7 +10,7 @@ const notifier = require('node-notifier');
 const pkg = JSON.parse(fs.readFileSync(path.resolve('package.json'), 'utf8'));
 const config = pkg.sassdev || {};
 const PROXY_TARGET = config.proxy || 'http://localhost';
-const BS_PORT = config.port || 4200;
+const BS_PORT = config.port || 4000;
 const IS_BUILD = process.argv.includes('--build');
 
 const SCSS_DIR = 'scss';

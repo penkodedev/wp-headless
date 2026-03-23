@@ -44,7 +44,7 @@ function pk_render_home_section() {
                     <span class="dashicons dashicons-admin-customizer"></span>
                 </div>
                 <h3><?php _e('Settings', 'penkode-headless'); ?></h3>
-                <p><?php _e('Configure site logos, analytics, languages, and more.', 'penkode-headless'); ?></p>
+                <p><?php _e('Configure site logos, SMTP, maps, tickers, analytics, languages, and much more.', 'penkode-headless'); ?></p>
             </div>
             
             <div class="pk-feature-card">
@@ -52,7 +52,7 @@ function pk_render_home_section() {
                     <span class="dashicons dashicons-admin-post"></span>
                 </div>
                 <h3><?php _e('Custom Post Types', 'penkode-headless'); ?></h3>
-                <p><?php _e('Manage your custom content types and their visibility.', 'penkode-headless'); ?></p>
+                <p><?php _e('Manage your custom content post types and their visibility.', 'penkode-headless'); ?></p>
             </div>
             
             <div class="pk-feature-card">

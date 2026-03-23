@@ -78,9 +78,13 @@ function agregar_columna_shortcode_todos($columns) {
 function mostrar_columna_shortcode_todos($column, $post_id) {
     if ($column == 'shortcode') {
         $post_type = get_post_type($post_id);
-        // The sliders CPT uses [slider] (singular) shortcode
-        $shortcode_name = ($post_type === 'sliders') ? 'slider' : $post_type;
-        echo '[' . $shortcode_name . ' id="' . $post_id . '"]';
+        if ($post_type === 'sliders') {
+            echo '[slider id="' . $post_id . '"]';
+        } elseif ($post_type === 'maps') {
+            echo '[map]';
+        } else {
+            echo '[' . $post_type . ' id="' . $post_id . '"]';
+        }
     }
 }
 
@@ -149,6 +153,16 @@ add_shortcode('slider', function ($atts) {
     }
 
     return '<div data-component="slider" data-slider-id="' . esc_attr($id) . '"></div>';
+});
+
+
+// =========================================================================================
+// MAP SHORTCODE [map]
+// Outputs an HTML marker that Next.js replaces with a <MapRenderer> component.
+// One map shows all locations from the Map CPT.
+// =========================================================================================
+add_shortcode('map', function ($atts) {
+    return '<div data-component="map"></div>';
 });
 
 
